@@ -240,6 +240,7 @@ public sealed class State permits FinishedState {
             command.execute();
             if (command.isFinished()) {
                 commandListIterator.remove();
+                command.end(false);
                 didAnyCommandFinish = true;
             }
         }

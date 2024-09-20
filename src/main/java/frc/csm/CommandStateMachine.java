@@ -149,12 +149,13 @@ public class CommandStateMachine extends Command {
         // Check for transitions
         StateTransition transition = getTransitionFromCurrentState();
         if (transition != null) {
-            this.currentState.exitState();
-            transition.action().run();
             State nextState = transition.nextState();
+
+            currentState.exitState();
+            transition.action().run();
             nextState.enterState();
 
-            this.currentState = nextState;
+            currentState = nextState;
         }
     }
 
