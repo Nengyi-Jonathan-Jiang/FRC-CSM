@@ -36,7 +36,7 @@ public sealed class State permits FinishedState {
     final Collection<Subsystem> getRequirements() {
         return Stream.concat(
             commandSuppliers.stream()
-                .map(Supplier::get)
+                .map(CommandSupplier::createCommand)
                 .map(Command::getRequirements)
                 .flatMap(Collection::stream),
             otherRequirements.stream()
@@ -219,7 +219,7 @@ public sealed class State permits FinishedState {
         }
         // Reset the currently executing commands;
         currentlyExecutingCommands.clear();
-        commandSuppliers.stream().map(Supplier::get).forEach(currentlyExecutingCommands::add);
+        commandSuppliers.stream().map(CommandSupplier::createCommand).forEach(currentlyExecutingCommands::add);
         // Reset state execution variables
         isExecuting = true;
         executionStartTimeSeconds = Timer.getFPGATimestamp();
