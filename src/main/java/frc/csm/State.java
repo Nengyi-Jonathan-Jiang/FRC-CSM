@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public sealed class State permits FinishedState {
-    private final List<Supplier<Command>> commandSuppliers = new ArrayList<>();
+    private final List<CommandSupplier> commandSuppliers = new ArrayList<>();
     private final CommandStateMachine csm;
     private final List<StateTransition> transitions = new ArrayList<>();
 
@@ -23,9 +23,8 @@ public sealed class State permits FinishedState {
     private final List<Subsystem> otherRequirements = new ArrayList<>();
 
     @PackagePrivate
-    State(CommandStateMachine csm, List<Command> commandSuppliers) {
+    State(CommandStateMachine csm) {
         this.csm = csm;
-        commandSuppliers.forEach(this::addCommand);
     }
 
     @PackagePrivate
@@ -69,7 +68,7 @@ public sealed class State permits FinishedState {
      *      state.addCommand(() -> new DriveCommand(getDistanceToDrive()));
      * }</pre>
      */
-    public void addCommand(Supplier<Command> command) {
+    public void addCommand(CommandSupplier command) {
         csm.assertSetupNotComplete();
         commandSuppliers.add(command);
     }

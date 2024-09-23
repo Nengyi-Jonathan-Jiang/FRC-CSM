@@ -1,0 +1,1 @@
+This package contains some utility classes for working with LED strips.

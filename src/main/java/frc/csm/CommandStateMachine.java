@@ -20,7 +20,9 @@ public class CommandStateMachine extends Command {
     @PackagePrivate
     void assertSetupNotComplete() {
         if (isSetupComplete) {
-            throw new RuntimeException("Cannot configure state machine after completeSetup() has been called");
+            throw new RuntimeException(
+                "Cannot configure state machine after finalizeSetup() has been called"
+            );
         }
     }
 
@@ -28,7 +30,7 @@ public class CommandStateMachine extends Command {
     void assertSetupComplete() {
         if (!isSetupComplete) {
             throw new RuntimeException(
-                "Cannot use state machine execution functions before completeSetup() has been called"
+                "Must call finalizeSetup() before scheduling the CSM as a command"
             );
         }
     }
@@ -44,20 +46,16 @@ public class CommandStateMachine extends Command {
 
     /**
      * Adds a new state from the given commands to the state machine. It is an error
-     * to call this after {@link #completeSetup()} has been called.
+     * to call this after {@link #finalizeSetup()} has been called.
      */
-    public State addState(Command... command) {
+    public State addState(CommandSupplier... commands) {
         assertSetupNotComplete();
-        return addState(List.of(command));
-    }
+        State result = new State(this);
 
-    /**
-     * Adds a new state from the given commands to the state machine. It is an error
-     * to call this after {@link #completeSetup()} has been called.
-     */
-    public State addState(List<Command> commands) {
-        assertSetupNotComplete();
-        State result = new State(this, commands);
+        for (CommandSupplier c : commands) {
+            result.addCommand(c);
+        }
+
         if (initialState == null) {
             initialState = result;
         }
@@ -67,7 +65,7 @@ public class CommandStateMachine extends Command {
 
     /**
      * Sets the initial state of the state machine. It is an error to call this after
-     * {@link #completeSetup()} has been called.
+     * {@link #finalizeSetup()} has been called.
      */
     public void setInitial(State initialState) {
         assertSetupNotComplete();
@@ -79,7 +77,7 @@ public class CommandStateMachine extends Command {
      * Prevents the state machine from being further configured. This MUST be called
      * before the command is scheduled.
      */
-    public void completeSetup() {
+    public void finalizeSetup() {
         assertSetupNotComplete();
 
         addRequirements(
@@ -121,7 +119,7 @@ public class CommandStateMachine extends Command {
 
     @Override
     public void initialize() {
-        assertSetupNotComplete();
+        assertSetupComplete();
 
         this.currentState = Objects.requireNonNullElse(
             initialState,

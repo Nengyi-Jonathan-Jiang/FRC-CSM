@@ -12,7 +12,7 @@ final class FinishedState extends State {
     }
 
     @Override
-    public void addCommand(Supplier<Command> command) {
+    public void addCommand(CommandSupplier command) {
         throw new RuntimeException("Cannot add commands to the finished state");
     }
 
